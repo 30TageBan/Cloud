@@ -1,0 +1,59 @@
+defaultTasks 'clean', 'build', 'test', 'jar'
+
+allprojects {
+
+    def major = 0, minor = 0, patch = 0, versionType = "SNAPSHOT"
+
+    group 'de.tageban'
+    version "$major.$minor.$patch.$versionType"
+
+    repositories {
+        mavenCentral()
+    }
+
+    project.ext {
+
+        cloudCodeName = ""
+
+        //Dependencies
+
+        //file
+        cloudLauncherFile = 'CloudLauncher.jar'
+        cloudCommonFile = 'CloudCommon.jar'
+
+        //compiled files for launcher
+        cloudRunnableOutFileName = 'Cloud.jar'
+        cloudRunnableOutCloudFileName = 'Cloud.cloud'
+    }
+
+    ext.createCloudFile = { Project pro, String fileName ->
+
+        def stringBuilder = new StringBuilder("# Cloud $cloudCodeName ${version}\n\n")
+                .append("# repositories\n\n")
+                .append("repo maven https://repo1.maven.org/maven2")
+                .append("# dependencies\n\n")
+
+        pro.configurations.runtimeClasspath.resolvedConfiguration.resolvedArtifacts.forEach({
+
+            if (it.moduleVersion.id.group != project.group) {
+
+                stringBuilder
+                        .append("include maven ")
+                        .append(it.moduleVersion.id.group).append(" ")
+                        .append(it.moduleVersion.id.name).append(" ")
+                        .append(it.moduleVersion.id.version)
+
+                if (it.classifier != null) stringBuilder.append(" ").append(it.classifier)
+
+                stringBuilder.append("\n")
+            }
+        })
+
+        file("$pro.buildDir/libs/" + fileName).text = stringBuilder.toString();
+    }
+
+    String hashValue = null;
+    ext.getCurrentCommitHash = {
+        
+    }
+}

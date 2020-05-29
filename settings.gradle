@@ -1,0 +1,5 @@
+rootProject.name = 'Cloud'
+include 'cloud'
+include 'cloud-launcher'
+include 'cloud-common'
+
